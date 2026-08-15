@@ -1,0 +1,62 @@
+[
+  {
+    "id": "sirius-a",
+    "name": "Sirius A",
+    "constellation": "Alpha Canis Majoris",
+    "ra": 101.287,
+    "dec": -16.716,
+    "apparent_mag": -1.46,
+    "absolute_mag": 1.43,
+    "distance_ly": 8.60,
+    "temp_k": 9940,
+    "spectral_class": "A1V"
+  },
+  {
+    "id": "betelgeuse",
+    "name": "Betelgeuse",
+    "constellation": "Alpha Orionis",
+    "ra": 88.793,
+    "dec": 7.407,
+    "apparent_mag": 0.42,
+    "absolute_mag": -5.85,
+    "distance_ly": 642.5,
+    "temp_k": 3500,
+    "spectral_class": "M1-M2Ia-ab"
+  },
+  {
+    "id": "rigel",
+    "name": "Rigel",
+    "constellation": "Beta Orionis",
+    "ra": 78.634,
+    "dec": -8.201,
+    "apparent_mag": 0.18,
+    "absolute_mag": -7.92,
+    "distance_ly": 860.0,
+    "temp_k": 12100,
+    "spectral_class": "B8Iab"
+  },
+  {
+    "id": "procyon",
+    "name": "Procyon",
+    "constellation": "Alpha Canis Minoris",
+    "ra": 114.825,
+    "dec": 5.225,
+    "apparent_mag": 0.34,
+    "absolute_mag": 2.66,
+    "distance_ly": 11.40,
+    "temp_k": 6530,
+    "spectral_class": "F5IV-V"
+  },
+  {
+    "id": "capella",
+    "name": "Capella",
+    "constellation": "Alpha Aurigae",
+    "ra": 79.172,
+    "dec": 45.998,
+    "apparent_mag": 0.08,
+    "absolute_mag": -0.48,
+    "distance_ly": 42.9,
+    "temp_k": 4970,
+    "spectral_class": "G3III"
+  }
+]

@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface-container-low: #0d1c2d;
+  --color-tertiary-fixed: #ffddb5;
+  --color-on-error-container: #ffdad6;
+  --color-secondary-container: #d97722;
+  --color-surface-variant: #273647;
+  --color-on-error: #690005;
+  --color-tertiary: #ffd6a3;
+  --color-on-tertiary-fixed-variant: #643f00;
+  --color-primary: #8aebff;
+  --color-secondary-fixed-dim: #ffb783;
+  --color-secondary: #ffb783;
+  --color-primary-fixed-dim: #2fd9f4;
+  --color-outline: #859397;
+  --color-inverse-primary: #006877;
+  --color-on-primary-fixed: #001f25;
+  --color-on-primary-fixed-variant: #004e5a;
+  --color-surface: #051424;
+  --color-background: #051424;
+  --color-on-secondary-container: #451f00;
+  --color-on-primary-container: #005763;
+  --color-on-secondary: #4f2500;
+  --color-on-secondary-fixed-variant: #713700;
+  --color-on-background: #d4e4fa;
+  --color-on-tertiary: #462b00;
+  --color-secondary-fixed: #ffdcc5;
+  --color-tertiary-container: #ffb13b;
+  --color-surface-container-highest: #273647;
+  --color-tertiary-fixed-dim: #ffb957;
+  --color-primary-container: #22d3ee;
+  --color-inverse-on-surface: #233143;
+  --color-error: #ffb4ab;
+  --color-on-surface: #d4e4fa;
+  --color-on-secondary-fixed: #301400;
+  --color-surface-dim: #051424;
+  --color-surface-tint: #2fd9f4;
+  --color-surface-bright: #2c3a4c;
+  --color-surface-container-lowest: #010f1f;
+  --color-primary-fixed: #a2eeff;
+  --color-on-tertiary-fixed: #2a1800;
+  --color-on-tertiary-container: #6e4600;
+  --color-on-primary: #00363e;
+  --color-surface-container-high: #1c2b3c;
+  --color-on-surface-variant: #bbc9cd;
+  --color-outline-variant: #3c494c;
+  --color-surface-container: #122131;
+  --color-inverse-surface: #d4e4fa;
+  --color-error-container: #93000a;
+
+  --spacing-panel-padding: 12px;
+  --spacing-margin: 32px;
+  --spacing-unit: 4px;
+  --spacing-gutter: 16px;
+
+  --font-display-lg: "Space Grotesk", sans-serif;
+  --font-data-mono: "JetBrains Mono", monospace;
+  --font-headline-md: "Space Grotesk", sans-serif;
+  --font-label-caps: "JetBrains Mono", monospace;
+  --font-body-base: "Space Mono", monospace;
+}
+
+@layer base {
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #051424;
+  }
+  body {
+    overscroll-behavior: none;
+    overflow-x: hidden;
+  }
+  main > :first-child { margin-top: 0 !important; }
+  main > :last-child { margin-bottom: 0 !important; }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+.glow-text {
+  text-shadow: 0 0 8px rgba(47,217,244,0.5);
+}
+
+.glow-border {
+  box-shadow: 0 0 10px rgba(47,217,244,0.15);
+}
