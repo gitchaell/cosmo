@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useState } from 'react';
+import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
@@ -25,6 +25,39 @@ function radecToCartesian(ra, dec, radius = 500) {
 function StarPoints() {
   const meshRef = useRef();
   const setFocusedStar = useCosmosStore(state => state.setFocusedStar);
+  const { raycaster } = useThree();
+
+  useEffect(() => {
+    raycaster.params.Points.threshold = 5.0;
+  }, [raycaster]);
+
+  const starTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+
+    // Draw diffraction spikes (twinkle effect)
+    ctx.beginPath();
+    ctx.moveTo(32, 0);
+    ctx.lineTo(32, 64);
+    ctx.moveTo(0, 32);
+    ctx.lineTo(64, 32);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Draw sharper core
+    const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.05, 'rgba(255, 255, 255, 0.8)');
+    gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.1)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 64, 64);
+
+    return new THREE.CanvasTexture(canvas);
+  }, []);
 
   // Create geometry and materials for data-driven stars
   const { positions, colors, sizes } = useMemo(() => {
@@ -123,6 +156,8 @@ function StarPoints() {
         opacity={1.0}
         blending={THREE.AdditiveBlending}
         depthWrite={false}
+        map={starTexture}
+        alphaTest={0.01}
       />
     </points>
   );
@@ -173,6 +208,21 @@ function EquatorialGroup({ children }) {
 }
 
 function Nebula() {
+  const nebulaTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.6)');
+    gradient.addColorStop(0.6, 'rgba(255, 255, 255, 0.1)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 128, 128);
+    return new THREE.CanvasTexture(canvas);
+  }, []);
+
   const { positions, colors, sizes } = useMemo(() => {
     const count = 3000;
     const positions = new Float32Array(count * 3);
@@ -206,7 +256,7 @@ function Nebula() {
       colors[i * 3 + 1] = colorObj.g;
       colors[i * 3 + 2] = colorObj.b;
 
-      sizes[i] = Math.random() * 40 + 10;
+      sizes[i] = Math.random() * 80 + 40;
     }
     return { positions, colors, sizes };
   }, []);
@@ -226,9 +276,81 @@ function Nebula() {
         sizeAttenuation={true}
         blending={THREE.AdditiveBlending}
         depthWrite={false}
+        map={nebulaTexture}
+        alphaTest={0.01}
       />
     </points>
   );
+}
+
+// Controller for custom FOV zooming while staying anchored at the origin
+function CameraController() {
+  const { camera, gl } = useThree();
+  const [targetFov, setTargetFov] = useState(camera.fov);
+
+  // Use refs to persist touch state across renders without triggering useEffect cleanup
+  const touchState = useRef({
+    touchStartDist: 0,
+    initialFov: camera.fov,
+    currentTargetFov: camera.fov // Also track the latest targetFov to use in start handler
+  });
+
+  // Keep ref in sync with state for handleTouchStart
+  useEffect(() => {
+    touchState.current.currentTargetFov = targetFov;
+  }, [targetFov]);
+
+  useEffect(() => {
+    const handleWheel = (e) => {
+      e.preventDefault();
+      const zoomSpeed = 0.05;
+      setTargetFov((prev) => THREE.MathUtils.clamp(prev + e.deltaY * zoomSpeed, 10, 100));
+    };
+
+    const handleTouchStart = (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        touchState.current.touchStartDist = Math.hypot(dx, dy);
+        touchState.current.initialFov = touchState.current.currentTargetFov;
+      }
+    };
+
+    const handleTouchMove = (e) => {
+      if (e.touches.length === 2) {
+        e.preventDefault();
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.hypot(dx, dy);
+
+        // Inverse relationship: increase distance -> decrease fov (zoom in)
+        const zoomFactor = touchState.current.touchStartDist / dist;
+        setTargetFov(THREE.MathUtils.clamp(touchState.current.initialFov * zoomFactor, 10, 100));
+      }
+    };
+
+    const canvas = gl.domElement;
+    canvas.addEventListener('wheel', handleWheel, { passive: false });
+    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    return () => {
+      canvas.removeEventListener('wheel', handleWheel);
+      canvas.removeEventListener('touchstart', handleTouchStart);
+      canvas.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [gl.domElement]);
+
+  useFrame(() => {
+    // Lerp towards target FOV for smooth zooming
+    if (Math.abs(camera.fov - targetFov) > 0.1) {
+      camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, 0.1);
+      camera.updateProjectionMatrix();
+    }
+  });
+
+  return null;
 }
 
 export default function Starfield() {
@@ -236,9 +358,11 @@ export default function Starfield() {
     <Canvas
       camera={{ position: [0, 0, 0.1], fov: 60 }}
       gl={{ antialias: true, alpha: false }}
-      style={{ width: '100%', height: '100%', pointerEvents: 'auto' }}
+      style={{ width: '100%', height: '100%', pointerEvents: 'auto', touchAction: 'none' }}
     >
       <color attach="background" args={['#000000']} />
+
+      <CameraController />
 
       {/* Background procedural stars for depth */}
       <Stars radius={500} depth={50} count={8000} factor={6} saturation={0.5} fade speed={1} />
@@ -258,12 +382,12 @@ export default function Starfield() {
 
       {/* Allows the user to look around and navigate */}
       <OrbitControls
-        enableZoom={true}
-        enablePan={true}
+        enableZoom={false}
+        enablePan={false}
+        enableDamping={true}
+        dampingFactor={0.05}
         minDistance={0.1}
         maxDistance={800}
-        panSpeed={1.0}
-        zoomSpeed={1.2}
       />
     </Canvas>
   );
