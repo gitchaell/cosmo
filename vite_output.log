@@ -11,3 +11,6 @@ Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
 1:01:46 AM [vite] (client) [optimizer] bundling dependencies...
+1:17:11 AM [vite] (client) hmr update /src/index.css, /src/components/Starfield.jsx
+1:18:14 AM [vite] (client) hmr update /src/index.css, /src/components/Starfield.jsx
+1:18:36 AM [vite] (client) hmr update /src/components/Cosmos.jsx, /src/index.css

@@ -31,20 +31,20 @@ const Header = () => {
   };
 
   return (
-    <header className="h-20 flex items-start justify-between px-margin pt-margin pointer-events-none z-40 absolute top-0 left-0 right-0 w-full">
-      <div className="flex flex-col border-l border-primary/60 pl-3 pointer-events-auto bg-surface-container-lowest/20 backdrop-blur-sm p-2">
+    <header className="flex flex-col md:flex-row items-start md:h-20 justify-between px-4 md:px-margin pt-4 md:pt-margin pointer-events-none z-40 absolute top-0 left-0 right-0 w-full gap-4 md:gap-0">
+      <div className="flex flex-col border-l border-primary/60 pl-3 pointer-events-auto bg-surface-container-lowest/20 backdrop-blur-sm p-2 text-xs md:text-sm">
         <div className="font-label-caps text-label-caps text-primary tracking-widest uppercase">Observation Point</div>
-        <div className="font-data-mono text-data-mono text-on-surface flex gap-4 mt-1">
+        <div className="font-data-mono text-data-mono text-on-surface flex flex-wrap gap-2 md:gap-4 mt-1">
           <span>{formatLatLon(location.lat, location.lon)}</span>
-          <span className="text-primary/40">|</span>
-          <span>{location.name}</span>
-          <span className="text-primary/40">|</span>
+          <span className="text-primary/40 hidden sm:inline">|</span>
+          <span className="hidden sm:inline">{location.name}</span>
+          <span className="text-primary/40 hidden md:inline">|</span>
           <span className="text-primary glow-text">
             {time.toISOString().substring(11, 19)} UTC
           </span>
         </div>
       </div>
-      <div className="flex flex-col items-end border-r border-primary/60 pr-3 pointer-events-auto bg-surface-container-lowest/20 backdrop-blur-sm p-2">
+      <div className="flex flex-col items-end border-r border-primary/60 pr-3 pointer-events-auto bg-surface-container-lowest/20 backdrop-blur-sm p-2 hidden sm:flex">
         <div className="font-label-caps text-label-caps text-primary tracking-widest uppercase">Telemetry Output</div>
         <div className="font-data-mono text-data-mono text-on-surface flex gap-4 mt-1">
           <span>FPS: 60.0</span>
@@ -89,9 +89,9 @@ const Footer = () => {
   const yearRatio = Math.max(0, Math.min(1, (time.getFullYear() - 2000) / 100));
 
   return (
-    <footer className="h-24 px-margin pb-margin flex items-end pointer-events-none z-40 absolute bottom-0 left-0 right-0 w-full">
-      <div className="w-full flex items-center gap-gutter bg-surface-container/60 backdrop-blur-xl border border-primary/20 p-panel-padding pointer-events-auto glow-border rounded-lg">
-        <div className="flex items-center gap-2">
+    <footer className="px-4 md:px-margin pb-4 md:pb-margin flex items-end pointer-events-none z-40 absolute bottom-0 left-0 right-0 w-full">
+      <div className="w-full flex flex-col md:flex-row items-center gap-4 md:gap-gutter bg-surface-container/60 backdrop-blur-xl border border-primary/20 p-panel-padding pointer-events-auto glow-border rounded-lg">
+        <div className="flex items-center gap-2 justify-center w-full md:w-auto">
           <button onClick={rewind} className="p-1 text-on-surface hover:text-primary transition-colors">
             <Rewind size={20} />
           </button>
@@ -121,8 +121,8 @@ const Footer = () => {
             <span>J2100.000</span>
           </div>
         </div>
-        <div className="border-l border-outline-variant/30 h-10 mx-2"></div>
-        <div className="flex items-center gap-3 px-3 py-1 border border-outline-variant/30 hover:border-primary/50 transition-colors cursor-pointer">
+        <div className="border-l border-outline-variant/30 h-10 mx-2 hidden md:block"></div>
+        <div className="flex items-center justify-center w-full md:w-auto gap-3 px-3 py-1 border border-outline-variant/30 hover:border-primary/50 transition-colors cursor-pointer">
           <MapPin className="text-primary w-4 h-4" />
           <span className="font-data-mono text-data-mono uppercase tracking-widest">SOL SYSTEM</span>
           <ChevronDown className="text-on-surface-variant w-4 h-4" />
@@ -188,7 +188,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className={`absolute right-margin top-24 bottom-32 w-80 flex flex-col justify-start z-30 pointer-events-none group transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? '' : 'translate-x-[300px]'}`} id="intel-panel">
+    <div className={`absolute right-4 md:right-margin top-24 bottom-40 md:bottom-32 w-72 md:w-80 flex flex-col justify-start z-30 pointer-events-none group transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? '' : 'translate-x-[300px]'}`} id="intel-panel">
       <div
         className="absolute -left-8 top-8 bg-surface-container-low/90 backdrop-blur-md border border-primary/30 border-r-0 py-4 px-1 rounded-l-md pointer-events-auto cursor-pointer hover:bg-primary/10 transition-colors flex items-center justify-center"
         onClick={() => setIsOpen(!isOpen)}
@@ -287,8 +287,8 @@ const LeftMonitor = () => {
   }, []);
 
   return (
-    <div className="absolute left-margin bottom-32 flex flex-col gap-4 z-30 pointer-events-none">
-      <div className="w-64 bg-surface-container-low/80 backdrop-blur-md border border-error/30 p-3 flex flex-col gap-2 rounded-lg pointer-events-auto">
+    <div className="absolute left-4 md:left-margin bottom-40 md:bottom-32 flex flex-col gap-4 z-30 pointer-events-none hidden sm:flex">
+      <div className="w-48 md:w-64 bg-surface-container-low/80 backdrop-blur-md border border-error/30 p-3 flex flex-col gap-2 rounded-lg pointer-events-auto">
         <div className="flex justify-between items-center border-b border-error/20 pb-1">
           <span className="font-label-caps text-[10px] text-error tracking-widest">UAP TRACKER</span>
           <span className="w-2 h-2 rounded-full bg-error animate-pulse shadow-[0_0_5px_rgba(255,180,171,0.8)]"></span>
@@ -313,7 +313,7 @@ const LeftMonitor = () => {
         </div>
       </div>
 
-      <div className="w-64 h-64 bg-surface-container-low/80 backdrop-blur-md rounded-full border border-primary/20 pointer-events-auto flex items-center justify-center relative glow-border p-4 group overflow-hidden">
+      <div className="w-48 h-48 md:w-64 md:h-64 bg-surface-container-low/80 backdrop-blur-md rounded-full border border-primary/20 pointer-events-auto flex items-center justify-center relative glow-border p-4 group overflow-hidden">
         <div className="absolute top-2 left-2 font-label-caps text-[10px] text-primary/60 tracking-widest bg-surface/80 px-1 z-10">HORIZON</div>
         <div className="absolute inset-8 rounded-full border border-primary/10"></div>
         <div className="absolute inset-16 rounded-full border border-primary/10"></div>
@@ -341,8 +341,8 @@ const LeftMonitor = () => {
 
 const NavigationAside = () => {
   return (
-    <aside className="fixed left-0 top-0 h-full w-16 border-r border-primary/20 bg-surface-container-lowest/40 backdrop-blur-md z-50 flex flex-col items-center py-margin gap-8">
-      <div className="w-10 h-10 border border-primary/40 flex items-center justify-center glow-border">
+    <aside className="fixed left-0 top-0 h-full w-12 md:w-16 border-r border-primary/20 bg-surface-container-lowest/40 backdrop-blur-md z-50 flex flex-col items-center py-4 md:py-margin gap-8">
+      <div className="w-8 h-8 md:w-10 md:h-10 border border-primary/40 flex items-center justify-center glow-border">
         <Compass className="text-primary w-6 h-6" />
       </div>
       <nav className="flex flex-col gap-6">
@@ -359,7 +359,7 @@ export default function Cosmos() {
   return (
     <div className="bg-background font-body-base text-on-surface overflow-hidden w-full h-screen relative flex">
       <NavigationAside />
-      <div className="pl-16 flex flex-col w-full h-full relative">
+      <div className="pl-12 md:pl-16 flex flex-col w-full h-full relative">
         <Header />
         <main className="flex-1 relative w-full h-full bg-[#051424]">
           {/* Ensure Starfield canvas takes full area under UI */}

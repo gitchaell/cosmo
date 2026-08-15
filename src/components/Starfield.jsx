@@ -52,7 +52,8 @@ function StarPoints() {
       colors[i * 3 + 2] = colorObj.b;
 
       // Size based on magnitude (brighter = smaller magnitude = bigger size)
-      sizes[i] = Math.max(1, 10 - star.apparent_mag * 2);
+      // Enhanced sizes for better visibility
+      sizes[i] = Math.max(3, 15 - star.apparent_mag * 2.5);
     });
 
     return { positions, colors, sizes };
@@ -112,10 +113,10 @@ function StarPoints() {
       </bufferGeometry>
       <pointsMaterial
         vertexColors
-        size={3}
+        size={5}
         sizeAttenuation={false}
         transparent
-        opacity={0.9}
+        opacity={1.0}
       />
     </points>
   );
@@ -184,12 +185,14 @@ export default function Starfield() {
         <gridHelper args={[800, 36, 0x22d3ee, 0x22d3ee]} material-transparent material-opacity={0.1} rotation={[Math.PI/2, 0, 0]} />
       </EquatorialGroup>
 
-      {/* Allows the user to look around */}
+      {/* Allows the user to look around and navigate */}
       <OrbitControls
         enableZoom={true}
-        enablePan={false}
+        enablePan={true}
         minDistance={0.1}
-        maxDistance={200}
+        maxDistance={800}
+        panSpeed={1.0}
+        zoomSpeed={1.2}
       />
     </Canvas>
   );
