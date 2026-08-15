@@ -14,3 +14,9 @@ Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
 1:17:11 AM [vite] (client) hmr update /src/index.css, /src/components/Starfield.jsx
 1:18:14 AM [vite] (client) hmr update /src/index.css, /src/components/Starfield.jsx
 1:18:36 AM [vite] (client) hmr update /src/components/Cosmos.jsx, /src/index.css
+4:08:56 AM [vite] (client) hmr update /src/index.css
+4:09:21 AM [vite] (client) hmr update /src/components/Cosmos.jsx, /src/index.css
+4:09:53 AM [vite] (client) hmr update /src/index.css, /src/components/Starfield.jsx
+4:10:38 AM [vite] (client) [optimizer] bundling dependencies...
+4:10:40 AM [vite] (client) dependency optimized: @react-three/postprocessing
+4:10:40 AM [vite] (client) optimized dependencies changed. reloading

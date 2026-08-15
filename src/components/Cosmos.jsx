@@ -134,8 +134,15 @@ const Footer = () => {
 
 const Sidebar = () => {
   const { focusedStar, time, location } = useCosmosStore();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [azAlt, setAzAlt] = useState({ az: 0, alt: 0 });
+
+  // Auto-open sidebar when a star is selected
+  useEffect(() => {
+    if (focusedStar) {
+      setIsOpen(true);
+    }
+  }, [focusedStar]);
 
   useEffect(() => {
     if (focusedStar) {

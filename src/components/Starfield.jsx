@@ -1,6 +1,7 @@
 import React, { useRef, useMemo, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
 import * as THREE from 'three';
 import starsData from '../data/stars.json';
 import useCosmosStore from '../store/useCosmosStore';
@@ -40,12 +41,15 @@ function StarPoints() {
       positions[i * 3 + 2] = pos.z;
 
       // Determine color from temperature (simplified approximation)
-      if (star.temp_k > 10000) colorObj.setHex(0xaaaaff); // Blue
-      else if (star.temp_k > 7500) colorObj.setHex(0xcceeff); // White-blue
-      else if (star.temp_k > 6000) colorObj.setHex(0xffffff); // White
-      else if (star.temp_k > 5000) colorObj.setHex(0xffffcc); // Yellow-white
-      else if (star.temp_k > 3500) colorObj.setHex(0xffcc99); // Orange
-      else colorObj.setHex(0xff9999); // Red
+      // Multiply color values for extreme brightness/bloom
+      const bloomFactor = Math.max(1.0, (10 - star.apparent_mag) * 0.5);
+
+      if (star.temp_k > 10000) colorObj.setRGB(0.6 * bloomFactor, 0.6 * bloomFactor, 1.0 * bloomFactor); // Blue
+      else if (star.temp_k > 7500) colorObj.setRGB(0.8 * bloomFactor, 0.9 * bloomFactor, 1.0 * bloomFactor); // White-blue
+      else if (star.temp_k > 6000) colorObj.setRGB(1.0 * bloomFactor, 1.0 * bloomFactor, 1.0 * bloomFactor); // White
+      else if (star.temp_k > 5000) colorObj.setRGB(1.0 * bloomFactor, 1.0 * bloomFactor, 0.8 * bloomFactor); // Yellow-white
+      else if (star.temp_k > 3500) colorObj.setRGB(1.0 * bloomFactor, 0.8 * bloomFactor, 0.6 * bloomFactor); // Orange
+      else colorObj.setRGB(1.0 * bloomFactor, 0.6 * bloomFactor, 0.6 * bloomFactor); // Red
 
       colors[i * 3] = colorObj.r;
       colors[i * 3 + 1] = colorObj.g;
@@ -53,7 +57,7 @@ function StarPoints() {
 
       // Size based on magnitude (brighter = smaller magnitude = bigger size)
       // Enhanced sizes for better visibility
-      sizes[i] = Math.max(3, 15 - star.apparent_mag * 2.5);
+      sizes[i] = Math.max(4, 20 - star.apparent_mag * 3.0);
     });
 
     return { positions, colors, sizes };
@@ -117,6 +121,8 @@ function StarPoints() {
         sizeAttenuation={false}
         transparent
         opacity={1.0}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
       />
     </points>
   );
@@ -166,24 +172,89 @@ function EquatorialGroup({ children }) {
   );
 }
 
+function Nebula() {
+  const { positions, colors, sizes } = useMemo(() => {
+    const count = 3000;
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
+    const colorObj = new THREE.Color();
+
+    for (let i = 0; i < count; i++) {
+      // Create a band-like structure for the Milky Way / Nebulas
+      const u = Math.random();
+      const v = Math.random();
+      const theta = 2 * Math.PI * u;
+      // Concentrate near the equator (dec ~ 0)
+      const phi = Math.acos(2 * v - 1);
+      const bandOffset = (Math.random() - 0.5) * 0.5; // Narrow band
+      const dec = Math.asin(Math.sin(phi) * bandOffset);
+
+      const r = 450 + Math.random() * 50;
+
+      positions[i * 3] = r * Math.cos(dec) * Math.sin(theta);
+      positions[i * 3 + 1] = r * Math.sin(dec);
+      positions[i * 3 + 2] = r * Math.cos(dec) * Math.cos(theta);
+
+      // Deep purples, blues, and faint reds
+      const colorChoice = Math.random();
+      if (colorChoice > 0.8) colorObj.setRGB(0.1, 0.2, 0.5); // Blue
+      else if (colorChoice > 0.5) colorObj.setRGB(0.3, 0.1, 0.4); // Purple
+      else colorObj.setRGB(0.2, 0.1, 0.2); // Dark Purple
+
+      colors[i * 3] = colorObj.r;
+      colors[i * 3 + 1] = colorObj.g;
+      colors[i * 3 + 2] = colorObj.b;
+
+      sizes[i] = Math.random() * 40 + 10;
+    }
+    return { positions, colors, sizes };
+  }, []);
+
+  return (
+    <points>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" count={positions.length / 3} array={positions} itemSize={3} />
+        <bufferAttribute attach="attributes-color" count={colors.length / 3} array={colors} itemSize={3} />
+        <bufferAttribute attach="attributes-size" count={sizes.length} array={sizes} itemSize={1} />
+      </bufferGeometry>
+      <pointsMaterial
+        vertexColors
+        size={20}
+        transparent
+        opacity={0.05}
+        sizeAttenuation={true}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+      />
+    </points>
+  );
+}
+
 export default function Starfield() {
   return (
     <Canvas
-      camera={{ position: [0, 0, 0.1], fov: 75 }}
-      gl={{ antialias: true, alpha: true }}
+      camera={{ position: [0, 0, 0.1], fov: 60 }}
+      gl={{ antialias: true, alpha: false }}
       style={{ width: '100%', height: '100%', pointerEvents: 'auto' }}
     >
-      <color attach="background" args={['#051424']} />
+      <color attach="background" args={['#000000']} />
 
       {/* Background procedural stars for depth */}
-      <Stars radius={500} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+      <Stars radius={500} depth={50} count={8000} factor={6} saturation={0.5} fade speed={1} />
 
       <EquatorialGroup>
         <StarPoints />
+        <Nebula />
 
         {/* Simple grid to visualize equatorial plane */}
-        <gridHelper args={[800, 36, 0x22d3ee, 0x22d3ee]} material-transparent material-opacity={0.1} rotation={[Math.PI/2, 0, 0]} />
+        <gridHelper args={[800, 36, 0x114455, 0x114455]} material-transparent material-opacity={0.15} rotation={[Math.PI/2, 0, 0]} />
       </EquatorialGroup>
+
+      {/* Postprocessing for glowing stars */}
+      <EffectComposer disableNormalPass>
+        <Bloom luminanceThreshold={1} mipmapBlur luminanceSmoothing={0.5} intensity={1.5} />
+      </EffectComposer>
 
       {/* Allows the user to look around and navigate */}
       <OrbitControls
