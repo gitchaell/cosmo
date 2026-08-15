@@ -1,0 +1,395 @@
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><style>@layer base{html,body{margin:0;padding:0;background-color:#051424;}body{overscroll-behavior:none;overflow-x:hidden;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}.glow-text{text-shadow:0 0 8px rgba(47,217,244,0.5);}.glow-border{box-shadow:0 0 10px rgba(47,217,244,0.15);}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"surface-container-low":"#0d1c2d","tertiary-fixed":"#ffddb5","on-error-container":"#ffdad6","secondary-container":"#d97722","surface-variant":"#273647","on-error":"#690005","tertiary":"#ffd6a3","on-tertiary-fixed-variant":"#643f00","primary":"#8aebff","secondary-fixed-dim":"#ffb783","secondary":"#ffb783","primary-fixed-dim":"#2fd9f4","outline":"#859397","inverse-primary":"#006877","on-primary-fixed":"#001f25","on-primary-fixed-variant":"#004e5a","surface":"#051424","background":"#051424","on-secondary-container":"#451f00","on-primary-container":"#005763","on-secondary":"#4f2500","on-secondary-fixed-variant":"#713700","on-background":"#d4e4fa","on-tertiary":"#462b00","secondary-fixed":"#ffdcc5","tertiary-container":"#ffb13b","surface-container-highest":"#273647","tertiary-fixed-dim":"#ffb957","primary-container":"#22d3ee","inverse-on-surface":"#233143","error":"#ffb4ab","on-surface":"#d4e4fa","on-secondary-fixed":"#301400","surface-dim":"#051424","surface-tint":"#2fd9f4","surface-bright":"#2c3a4c","surface-container-lowest":"#010f1f","primary-fixed":"#a2eeff","on-tertiary-fixed":"#2a1800","on-tertiary-container":"#6e4600","on-primary":"#00363e","surface-container-high":"#1c2b3c","on-surface-variant":"#bbc9cd","outline-variant":"#3c494c","surface-container":"#122131","inverse-surface":"#d4e4fa","error-container":"#93000a"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"panel-padding":"12px","margin":"32px","unit":"4px","gutter":"16px"},"fontFamily":{"display-lg":["Space Grotesk"],"data-mono":["JetBrains Mono"],"headline-md":["Space Grotesk"],"label-caps":["JetBrains Mono"],"body-base":["Space Mono"]},"fontSize":{"display-lg":["48px",{"lineHeight":"1.1","letterSpacing":"-0.02em","fontWeight":"700"}],"data-mono":["14px",{"lineHeight":"1","letterSpacing":"0em","fontWeight":"500"}],"headline-md":["24px",{"lineHeight":"1.2","letterSpacing":"0.05em","fontWeight":"500"}],"label-caps":["12px",{"lineHeight":"1.2","letterSpacing":"0.15em","fontWeight":"700"}],"body-base":["16px",{"lineHeight":"1.6","letterSpacing":"0em","fontWeight":"400"}]}}}}</script><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Space+Grotesk:wght@500;700&amp;family=Space+Mono&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head><body class="bg-background font-body-base text-on-surface overflow-hidden"><aside class="fixed left-0 top-0 h-full w-16 border-r border-primary/20 bg-surface-container-lowest/40 backdrop-blur-md z-50 flex flex-col items-center py-margin gap-8"><div class="w-10 h-10 border border-primary/40 flex items-center justify-center glow-border"><span class="material-symbols-outlined text-primary">explore</span></div><nav class="flex flex-col gap-6" data-active-classes="text-primary glow-text"><a aria-current="page" class="material-symbols-outlined transition-all text-primary glow-text" data-path="star-chart" href="#">auto_awesome</a><a class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all" data-path="telemetry" href="#">query_stats</a><a class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all" data-path="constellations" href="#">polyline</a><a class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-all" data-path="settings" href="#">settings</a></nav></aside><div class="pl-16 flex flex-col h-screen"><header class="h-20 flex items-start justify-between px-margin pt-margin pointer-events-none z-40"><div class="flex flex-col border-l border-primary/60 pl-3 pointer-events-auto bg-surface-container-lowest/20 backdrop-blur-sm p-2"><div class="font-label-caps text-label-caps text-primary tracking-widest uppercase">Observation Point</div><div class="font-data-mono text-data-mono text-on-surface flex gap-4 mt-1"><span>34.0522° N, 118.2437° W</span><span class="text-primary/40">|</span><span>Los Angeles, CA</span><span class="text-primary/40">|</span><span class="text-primary glow-text">23:14:02 UTC</span></div></div><div class="flex flex-col items-end border-r border-primary/60 pr-3 pointer-events-auto bg-surface-container-lowest/20 backdrop-blur-sm p-2"><div class="font-label-caps text-label-caps text-primary tracking-widest uppercase">Telemetry Output</div><div class="font-data-mono text-data-mono text-on-surface flex gap-4 mt-1"><span>FPS: 144.2</span><span>LATENCY: 12ms</span><span class="text-primary">SIM: 1.0x</span></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center mt-3"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="flex-1 relative"><div class="flex flex-col w-full h-full relative font-body-base overflow-hidden">
+<!-- Starfield Background Engine -->
+<div class="absolute inset-0 w-full h-full z-0 cursor-move pointer-events-auto mix-blend-screen" id="celestial-engine"></div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('celestial-engine');
+        <!-- STITCH_THREEJS_START:ANIMATION_5 class="" -->
+<div class="" style="display:block;width:100%;height:100%;min-height:200px;">
+<script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+<div id="threejs-container-ANIMATION_5" style="width:100%;height:100%"></div>
+<script>
+(function() {
+  const container = document.getElementById('threejs-container-ANIMATION_5');
+  const devicePixelRatio = window.devicePixelRatio || 1;
+  // Three.js Astronomy Simulation Engine
+// Implements a draggable, zoomable celestial sphere with stars and constellations.
+
+const width = container.clientWidth || window.innerWidth;
+const height = container.clientHeight || window.innerHeight;
+
+// Scene Setup
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+camera.position.set(0, 0, 0.1); // Look from center
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(width, height);
+renderer.setPixelRatio(window.devicePixelRatio);
+container.appendChild(renderer.domElement);
+
+// Stars Data Generation (Procedural for simulation)
+const starCount = 4000;
+const starGeometry = new THREE.BufferGeometry();
+const starPositions = new Float32Array(starCount * 3);
+const starSizes = new Float32Array(starCount);
+const starColors = new Float32Array(starCount * 3);
+
+for (let i = 0; i < starCount; i++) {
+    const i3 = i * 3;
+    // Spherical coordinates for stars
+    const radius = 500;
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    
+    starPositions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+    starPositions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+    starPositions[i3 + 2] = radius * Math.cos(phi);
+    
+    // Random sizes based on magnitude simulation
+    starSizes[i] = Math.random() * 2.5;
+    
+    // Star temperatures (color)
+    const colorChance = Math.random();
+    if (colorChance > 0.9) { // Blue giants
+        starColors[i3] = 0.7; starColors[i3+1] = 0.8; starColors[i3+2] = 1.0;
+    } else if (colorChance > 0.8) { // Red dwarfs
+        starColors[i3] = 1.0; starColors[i3+1] = 0.6; starColors[i3+2] = 0.5;
+    } else { // White/Yellow
+        starColors[i3] = 0.9; starColors[i3+1] = 0.95; starColors[i3+2] = 1.0;
+    }
+}
+
+starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+starGeometry.setAttribute('size', new THREE.BufferAttribute(starSizes, 1));
+starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
+
+const starMaterial = new THREE.PointsMaterial({
+    size: 1.5,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.8,
+    sizeAttenuation: false
+});
+
+const stars = new THREE.Points(starGeometry, starMaterial);
+scene.add(stars);
+
+// Constellation Lines (Simplified procedural mock for constellations)
+const constellationMaterial = new THREE.LineBasicMaterial({ 
+    color: 0x22d3ee, 
+    transparent: true, 
+    opacity: 0.15 
+});
+
+const constellationGroup = new THREE.Group();
+for (let j = 0; j < 20; j++) {
+    const points = [];
+    const baseTheta = Math.random() * Math.PI * 2;
+    const basePhi = Math.acos(2 * Math.random() - 1);
+    const starDist = 500;
+    
+    for (let k = 0; k < 4 + Math.floor(Math.random() * 4); k++) {
+        const offset = 0.05;
+        const theta = baseTheta + (Math.random() - 0.5) * offset * 2;
+        const phi = basePhi + (Math.random() - 0.5) * offset * 2;
+        points.push(new THREE.Vector3(
+            starDist * Math.sin(phi) * Math.cos(theta),
+            starDist * Math.sin(phi) * Math.sin(theta),
+            starDist * Math.cos(phi)
+        ));
+    }
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    const line = new THREE.Line(geometry, constellationMaterial);
+    constellationGroup.add(line);
+}
+scene.add(constellationGroup);
+
+// Interaction Variables
+let isDragging = false;
+let previousMousePosition = { x: 0, y: 0 };
+let lon = 0, lat = 0;
+let phi = 0, theta = 0;
+let target = new THREE.Vector3();
+let zoom = 75;
+
+// Event Listeners
+const onPointerDown = (event) => {
+    isDragging = true;
+    previousMousePosition = { x: event.clientX, y: event.clientY };
+};
+
+const onPointerMove = (event) => {
+    if (isDragging) {
+        const deltaX = event.clientX - previousMousePosition.x;
+        const deltaY = event.clientY - previousMousePosition.y;
+        
+        lon -= deltaX * 0.1;
+        lat += deltaY * 0.1;
+        lat = Math.max(-85, Math.min(85, lat));
+        
+        previousMousePosition = { x: event.clientX, y: event.clientY };
+    }
+};
+
+const onPointerUp = () => {
+    isDragging = false;
+};
+
+const onWheel = (event) => {
+    zoom += event.deltaY * 0.05;
+    zoom = Math.max(10, Math.min(100, zoom));
+    camera.fov = zoom;
+    camera.updateProjectionMatrix();
+};
+
+container.addEventListener('pointerdown', onPointerDown);
+window.addEventListener('pointermove', onPointerMove);
+window.addEventListener('pointerup', onPointerUp);
+container.addEventListener('wheel', onWheel);
+
+// Render Loop
+function animate() {
+    requestAnimationFrame(animate);
+    
+    phi = THREE.MathUtils.degToRad(90 - lat);
+    theta = THREE.MathUtils.degToRad(lon);
+    
+    target.x = Math.sin(phi) * Math.cos(theta);
+    target.y = Math.cos(phi);
+    target.z = Math.sin(phi) * Math.sin(theta);
+    
+    camera.lookAt(target);
+    
+    // Subtle star twinkle
+    starMaterial.opacity = 0.7 + Math.sin(Date.now() * 0.002) * 0.1;
+    
+    renderer.render(scene, camera);
+}
+
+// Handle Resize
+window.addEventListener('resize', () => {
+    const w = container.clientWidth || window.innerWidth;
+    const h = container.clientHeight || window.innerHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+});
+
+animate();
+
+})();
+</script>
+</div>
+<!-- STITCH_THREEJS_END:ANIMATION_5 -->
+    });
+</script>
+<!-- Global Grid Overlay -->
+<div class="absolute inset-0 z-0 pointer-events-none" style="background-image: linear-gradient(to right, rgba(47,217,244,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(47,217,244,0.03) 1px, transparent 1px); background-size: 64px 64px;"></div>
+<!-- Interaction Instructions -->
+<div class="absolute bottom-32 left-1/2 -translate-x-1/2 z-20 pointer-events-none font-label-caps text-[10px] text-primary/60 tracking-widest uppercase flex items-center gap-4 bg-surface-container-lowest/50 px-4 py-2 rounded-full backdrop-blur-md border border-primary/20 glow-border">
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">swipe</span> Drag to Rotate</span>
+<span class="w-px h-3 bg-primary/40"></span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[14px]">mouse</span> Scroll to Zoom</span>
+</div>
+<!-- Central Reticle & Viewfinder -->
+<div class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+<div class="relative w-[600px] h-[600px]">
+<!-- Corner Brackets -->
+<div class="absolute top-0 left-0 w-16 h-16 border-t border-l border-primary opacity-60 glow-border"></div>
+<div class="absolute top-0 right-0 w-16 h-16 border-t border-r border-primary opacity-60 glow-border"></div>
+<div class="absolute bottom-0 left-0 w-16 h-16 border-b border-l border-primary opacity-60 glow-border"></div>
+<div class="absolute bottom-0 right-0 w-16 h-16 border-b border-r border-primary opacity-60 glow-border"></div>
+<!-- Inner Circle -->
+<div class="absolute inset-8 rounded-full border border-primary/20 bg-surface-container-low/10 backdrop-blur-[2px]"></div>
+<!-- Crosshair -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-full h-px bg-primary/20 relative">
+<div class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border border-primary/40"></div>
+</div>
+<div class="absolute top-0 h-full w-px bg-primary/20"></div>
+</div>
+<!-- Targeting Lock (Animated) -->
+<div class="absolute inset-0 flex items-center justify-center animate-[pulse_4s_ease-in-out_infinite]">
+<div class="w-32 h-32 rounded-full border border-primary/30 flex items-center justify-center relative">
+<div class="absolute -top-1 -left-1 w-3 h-3 border-t border-l border-primary"></div>
+<div class="absolute -top-1 -right-1 w-3 h-3 border-t border-r border-primary"></div>
+<div class="absolute -bottom-1 -left-1 w-3 h-3 border-b border-l border-primary"></div>
+<div class="absolute -bottom-1 -right-1 w-3 h-3 border-b border-r border-primary"></div>
+<div class="w-1 h-1 bg-primary rounded-full glow-text"></div>
+</div>
+</div>
+<!-- Angle Indicators -->
+<div class="absolute -right-24 top-1/2 -translate-y-1/2 flex flex-col gap-1 text-primary font-data-mono text-[10px]">
+<span>+15°</span>
+<div class="w-2 h-px bg-primary/40"></div>
+<span>+0°</span>
+<div class="w-2 h-px bg-primary/40"></div>
+<span>-15°</span>
+</div>
+</div>
+</div>
+<!-- Active Elements Container -->
+<div class="absolute inset-0 z-20 pointer-events-none p-margin flex justify-between items-end pb-24">
+<!-- Bottom Left: UAP Monitor -->
+<div class="w-72 bg-surface-container-low/80 backdrop-blur-md border border-outline-variant/30 rounded-lg p-panel-padding pointer-events-auto flex flex-col gap-4 relative overflow-hidden group hover:border-error/50 transition-colors">
+<!-- Glitch overlay effect triggered by JS or hover -->
+<div class="absolute inset-0 bg-error/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none mix-blend-screen"></div>
+<div class="flex justify-between items-center border-b border-outline-variant/30 pb-2">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-error animate-pulse glow-border shadow-[0_0_8px_rgba(255,180,171,0.5)]"></div>
+<span class="font-label-caps text-label-caps text-error tracking-widest uppercase">UAP Monitor</span>
+</div>
+<span class="font-data-mono text-[10px] text-error/80">SYS.ANOMALY</span>
+</div>
+<div class="flex flex-col gap-2 font-data-mono text-data-mono">
+<div class="flex justify-between items-end">
+<span class="text-on-surface-variant text-[12px]">SIGNATURE M1</span>
+<span class="text-error glow-text">DETECTED</span>
+</div>
+<div class="h-8 w-full relative flex items-end gap-[1px]">
+<!-- Simulated audio/signal visualizer -->
+<div class="w-full h-full flex items-end justify-between gap-1 opacity-80" id="uap-signal-vis">
+<div class="w-1 bg-error/40 h-[20%] transition-all duration-100"></div>
+<div class="w-1 bg-error/40 h-[40%] transition-all duration-100"></div>
+<div class="w-1 bg-error/60 h-[80%] transition-all duration-100 glow-border"></div>
+<div class="w-1 bg-error/40 h-[30%] transition-all duration-100"></div>
+<div class="w-1 bg-error/40 h-[60%] transition-all duration-100"></div>
+<div class="w-1 bg-error/40 h-[10%] transition-all duration-100"></div>
+<div class="w-1 bg-error/80 h-[100%] transition-all duration-100 shadow-[0_0_8px_rgba(255,180,171,0.8)]"></div>
+<div class="w-1 bg-error/40 h-[50%] transition-all duration-100"></div>
+<div class="w-1 bg-error/40 h-[20%] transition-all duration-100"></div>
+<div class="w-1 bg-error/40 h-[70%] transition-all duration-100"></div>
+<div class="w-1 bg-error/40 h-[30%] transition-all duration-100"></div>
+<div class="w-1 bg-error/40 h-[10%] transition-all duration-100"></div>
+</div>
+<div class="absolute top-1/2 w-full h-px bg-error/20"></div>
+</div>
+<div class="flex justify-between text-[10px] text-error/60 mt-1">
+<span>FREQ: 1420MHz</span>
+<span>INTENSITY: HIGH</span>
+</div>
+</div>
+</div>
+<!-- Bottom Right: Horizon Radar -->
+<div class="w-64 h-64 bg-surface-container-low/80 backdrop-blur-md rounded-full border border-primary/20 pointer-events-auto flex items-center justify-center relative glow-border p-4 group">
+<div class="absolute top-2 left-2 font-label-caps text-[10px] text-primary/60 tracking-widest bg-surface/80 px-1">HORIZON</div>
+<!-- Concentric Circles -->
+<div class="absolute inset-8 rounded-full border border-primary/10"></div>
+<div class="absolute inset-16 rounded-full border border-primary/10"></div>
+<div class="absolute inset-24 rounded-full border border-primary/20 border-dashed"></div>
+<!-- Axis -->
+<div class="absolute inset-4 flex items-center justify-center">
+<div class="w-full h-px bg-primary/10"></div>
+</div>
+<div class="absolute inset-4 flex items-center justify-center">
+<div class="h-full w-px bg-primary/10"></div>
+</div>
+<!-- Rotating Sweep -->
+<div class="absolute inset-4 rounded-full overflow-hidden mix-blend-screen pointer-events-none">
+<div class="w-1/2 h-1/2 bg-gradient-to-br from-primary/30 to-transparent origin-bottom-right animate-[spin_4s_linear_infinite]"></div>
+</div>
+<!-- Targets -->
+<div class="absolute top-[30%] left-[60%] w-2 h-2 bg-primary animate-pulse shadow-[0_0_8px_rgba(47,217,244,0.8)]"></div>
+<div class="absolute top-[70%] left-[20%] w-1.5 h-1.5 bg-primary/60"></div>
+<div class="absolute top-[40%] left-[30%] w-1.5 h-1.5 bg-secondary animate-pulse shadow-[0_0_8px_rgba(255,183,131,0.5)]"></div>
+<!-- Cardinal Points -->
+<span class="absolute top-1 left-1/2 -translate-x-1/2 font-data-mono text-[10px] text-primary/80">N</span>
+<span class="absolute bottom-1 left-1/2 -translate-x-1/2 font-data-mono text-[10px] text-primary/80">S</span>
+<span class="absolute left-1 top-1/2 -translate-y-1/2 font-data-mono text-[10px] text-primary/80">W</span>
+<span class="absolute right-1 top-1/2 -translate-y-1/2 font-data-mono text-[10px] text-primary/80">E</span>
+</div>
+</div>
+<!-- Right Sidebar: Object Intel Panel -->
+<div class="absolute right-margin top-24 bottom-32 w-80 flex flex-col justify-start z-30 pointer-events-none group" id="intel-panel">
+<!-- Tab Handle -->
+<div class="absolute -left-8 top-8 bg-surface-container-low/90 backdrop-blur-md border border-primary/30 border-r-0 py-4 px-1 rounded-l-md pointer-events-auto cursor-pointer hover:bg-primary/10 transition-colors flex items-center justify-center" onclick="document.getElementById('intel-panel').classList.toggle('translate-x-[300px]')">
+<span class="material-symbols-outlined text-primary text-sm transform -rotate-90">unfold_more</span>
+</div>
+<div class="w-full bg-surface-container-low/90 backdrop-blur-xl border border-primary/20 rounded-lg rounded-tl-none p-panel-padding pointer-events-auto flex flex-col gap-6 h-full overflow-y-auto glow-border transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]">
+<!-- Header -->
+<div class="flex flex-col border-b border-primary/30 pb-3">
+<div class="flex justify-between items-start mb-1">
+<span class="font-label-caps text-label-caps text-primary tracking-widest uppercase">Target Intel</span>
+<span class="font-data-mono text-[10px] text-primary/60 border border-primary/30 px-1">LOCKED</span>
+</div>
+<h2 class="font-display-lg text-display-lg text-on-surface mb-0">Sirius A</h2>
+<span class="font-data-mono text-data-mono text-on-surface-variant">Alpha Canis Majoris</span>
+</div>
+<!-- Spectral Class Visualization -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between font-label-caps text-[10px] text-on-surface-variant">
+<span>SPECTRAL CLASS</span>
+<span class="text-primary glow-text">A1V</span>
+</div>
+<div class="h-2 w-full bg-surface relative rounded-full overflow-hidden">
+<!-- Spectrum Gradient -->
+<div class="absolute inset-0 bg-gradient-to-r from-error via-tertiary-container to-primary opacity-30"></div>
+<!-- Indicator Line -->
+<div class="absolute left-[80%] top-0 h-full w-0.5 bg-primary shadow-[0_0_8px_rgba(47,217,244,1)]"></div>
+</div>
+</div>
+<!-- Coordinates Grid -->
+<div class="grid grid-cols-2 gap-px bg-primary/20 border border-primary/20">
+<div class="bg-surface-container-low p-2 flex flex-col gap-1">
+<span class="font-label-caps text-[9px] text-primary/60">RA (J2000)</span>
+<span class="font-data-mono text-[13px] text-on-surface">06h 45m 08.9s</span>
+</div>
+<div class="bg-surface-container-low p-2 flex flex-col gap-1">
+<span class="font-label-caps text-[9px] text-primary/60">DEC (J2000)</span>
+<span class="font-data-mono text-[13px] text-on-surface">-16° 42' 58"</span>
+</div>
+<div class="bg-surface-container-low p-2 flex flex-col gap-1">
+<span class="font-label-caps text-[9px] text-primary/60">AZIMUTH</span>
+<span class="font-data-mono text-[13px] text-on-surface">214.5° SW</span>
+</div>
+<div class="bg-surface-container-low p-2 flex flex-col gap-1">
+<span class="font-label-caps text-[9px] text-primary/60">ALTITUDE</span>
+<span class="font-data-mono text-[13px] text-on-surface">+42.1°</span>
+</div>
+</div>
+<!-- Vital Stats -->
+<div class="flex flex-col gap-3 font-data-mono text-data-mono">
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-1">
+<span class="text-on-surface-variant">APPARENT MAG</span>
+<span class="text-primary">-1.46</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-1">
+<span class="text-on-surface-variant">ABSOLUTE MAG</span>
+<span class="text-primary">1.43</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-1">
+<span class="text-on-surface-variant">DISTANCE</span>
+<span class="text-primary">8.60 ly</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/20 pb-1">
+<span class="text-on-surface-variant">TEMPERATURE</span>
+<span class="text-primary">9,940 K</span>
+</div>
+</div>
+<div class="mt-auto">
+<button class="w-full py-3 border border-primary/40 bg-primary/5 hover:bg-primary/15 text-primary font-label-caps tracking-widest uppercase transition-all hover:border-primary hover:shadow-[0_0_12px_rgba(47,217,244,0.2)] flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">travel_explore</span>
+                    Initiate Deep Scan
+                </button>
+</div>
+</div>
+</div>
+</div>
+<script>
+    // Micro-interaction: Randomize UAP Signal Visualizer
+    document.addEventListener('DOMContentLoaded', () => {
+        const bars = document.querySelectorAll('#uap-signal-vis div');
+        setInterval(() => {
+            bars.forEach(bar => {
+                if(Math.random() > 0.3) {
+                    const height = Math.floor(Math.random() * 90) + 10;
+                    bar.style.height = `${height}%`;
+                }
+            });
+        }, 150);
+    });
+</script></main><footer class="h-24 px-margin pb-margin flex items-end pointer-events-none z-40"><div class="w-full flex items-center gap-gutter bg-surface-container/60 backdrop-blur-xl border border-primary/20 p-panel-padding pointer-events-auto glow-border rounded-lg"><div class="flex items-center gap-2"><button class="p-1 text-on-surface hover:text-primary transition-colors"><span class="material-symbols-outlined">fast_rewind</span></button><button class="p-2 bg-primary/10 border border-primary/30 rounded-full text-primary hover:bg-primary/20 transition-all"><span class="material-symbols-outlined">play_arrow</span></button><button class="p-1 text-on-surface hover:text-primary transition-colors"><span class="material-symbols-outlined">fast_forward</span></button></div><div class="flex-1 flex flex-col gap-2"><div class="h-1 w-full bg-surface-variant relative"><div class="absolute left-0 top-0 h-full w-1/3 bg-primary glow-border"></div><div class="absolute left-1/3 top-1/2 -translate-y-1/2 w-3 h-3 bg-primary rounded-full border-2 border-surface"></div></div><div class="flex justify-between font-data-mono text-[10px] text-on-surface-variant"><span>J2000.000</span><span>PRESENT DAY</span><span>J2100.000</span></div></div><div class="border-l border-outline-variant/30 h-10 mx-2"></div><div class="flex items-center gap-3 px-3 py-1 border border-outline-variant/30 hover:border-primary/50 transition-colors cursor-pointer"><span class="material-symbols-outlined text-primary text-sm">location_on</span><span class="font-data-mono text-data-mono uppercase tracking-widest">SOL SYSTEM</span><span class="material-symbols-outlined text-on-surface-variant text-sm">expand_more</span></div></div></footer></div></body></html>
