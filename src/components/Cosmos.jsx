@@ -40,7 +40,7 @@ const Header = () => {
           <span className="hidden sm:inline">{location.name}</span>
           <span className="text-primary/40 hidden md:inline">|</span>
           <span className="text-primary glow-text">
-            {time.toISOString().substring(11, 19)} UTC
+            {time.toLocaleTimeString()} LOCAL
           </span>
         </div>
       </div>
@@ -59,78 +59,6 @@ const Header = () => {
   );
 };
 
-const Footer = () => {
-  const { isPlaying, playPause, fastForward, rewind, speed, time, setTime } = useCosmosStore();
-
-  // Simulation loop decoupled from heavy React re-renders but updates the store time
-  useEffect(() => {
-    let lastUpdate = performance.now();
-    let reqId;
-
-    const loop = (now) => {
-      if (isPlaying) {
-        const dt = now - lastUpdate;
-        // Simple time progression: dt in ms * speed
-        // If speed=1, 1 second real time = 1 second sim time
-        // Since we want visible movement, maybe speed=1 means 1 hour per second?
-        // Let's say speed=1 -> 1 real sec = 1 sim min (60x) for visibility.
-        // Actually, just add dt * speed milliseconds.
-        const addTimeMs = dt * speed;
-        setTime(new Date(useCosmosStore.getState().time.getTime() + addTimeMs));
-      }
-      lastUpdate = now;
-      reqId = requestAnimationFrame(loop);
-    };
-
-    reqId = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(reqId);
-  }, [isPlaying, speed, setTime]);
-
-  const yearRatio = Math.max(0, Math.min(1, (time.getFullYear() - 2000) / 100));
-
-  return (
-    <footer className="px-4 md:px-margin pb-4 md:pb-margin flex items-end pointer-events-none z-40 absolute bottom-0 left-0 right-0 w-full">
-      <div className="w-full flex flex-col md:flex-row items-center gap-4 md:gap-gutter bg-surface-container/60 backdrop-blur-xl border border-primary/20 p-panel-padding pointer-events-auto glow-border rounded-lg">
-        <div className="flex items-center gap-2 justify-center w-full md:w-auto">
-          <button onClick={rewind} className="p-1 text-on-surface hover:text-primary transition-colors">
-            <Rewind size={20} />
-          </button>
-          <button onClick={playPause} className="p-2 bg-primary/10 border border-primary/30 rounded-full text-primary hover:bg-primary/20 transition-all">
-            {isPlaying ? <Pause size={24} /> : <Play size={24} />}
-          </button>
-          <button onClick={fastForward} className="p-1 text-on-surface hover:text-primary transition-colors">
-            <FastForward size={20} />
-          </button>
-        </div>
-        <div className="flex-1 flex flex-col gap-2">
-          <div className="h-1 w-full bg-surface-variant relative cursor-pointer" onClick={(e) => {
-             const rect = e.currentTarget.getBoundingClientRect();
-             const ratio = (e.clientX - rect.left) / rect.width;
-             // Set time between 2000 and 2100 based on click
-             const newYear = 2000 + ratio * 100;
-             const newTime = new Date(useCosmosStore.getState().time);
-             newTime.setFullYear(newYear);
-             setTime(newTime);
-          }}>
-            <div className="absolute left-0 top-0 h-full bg-primary glow-border" style={{ width: `${yearRatio * 100}%` }}></div>
-            <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-primary rounded-full border-2 border-surface" style={{ left: `calc(${yearRatio * 100}% - 6px)` }}></div>
-          </div>
-          <div className="flex justify-between font-data-mono text-[10px] text-on-surface-variant">
-            <span>J2000.000</span>
-            <span>{time.toISOString().split('T')[0]}</span>
-            <span>J2100.000</span>
-          </div>
-        </div>
-        <div className="border-l border-outline-variant/30 h-10 mx-2 hidden md:block"></div>
-        <div className="flex items-center justify-center w-full md:w-auto gap-3 px-3 py-1 border border-outline-variant/30 hover:border-primary/50 transition-colors cursor-pointer">
-          <MapPin className="text-primary w-4 h-4" />
-          <span className="font-data-mono text-data-mono uppercase tracking-widest">SOL SYSTEM</span>
-          <ChevronDown className="text-on-surface-variant w-4 h-4" />
-        </div>
-      </div>
-    </footer>
-  );
-};
 
 const Sidebar = () => {
   const { focusedStar, time, location } = useCosmosStore();
@@ -346,27 +274,31 @@ const LeftMonitor = () => {
   );
 };
 
-const NavigationAside = () => {
-  return (
-    <aside className="fixed left-0 top-0 h-full w-12 md:w-16 border-r border-primary/20 bg-surface-container-lowest/40 backdrop-blur-md z-50 flex flex-col items-center py-4 md:py-margin gap-8">
-      <div className="w-8 h-8 md:w-10 md:h-10 border border-primary/40 flex items-center justify-center glow-border">
-        <Compass className="text-primary w-6 h-6" />
-      </div>
-      <nav className="flex flex-col gap-6">
-        <a href="#" className="transition-all text-primary glow-text" aria-current="page"><Target className="w-6 h-6" /></a>
-        <a href="#" className="text-on-surface-variant hover:text-primary transition-all"><Activity className="w-6 h-6" /></a>
-        <a href="#" className="text-on-surface-variant hover:text-primary transition-all"><Info className="w-6 h-6" /></a>
-        <a href="#" className="text-on-surface-variant hover:text-primary transition-all"><Settings className="w-6 h-6" /></a>
-      </nav>
-    </aside>
-  );
-};
-
 export default function Cosmos() {
+  const { isPlaying, speed, setTime } = useCosmosStore();
+
+  // Simulation loop decoupled from heavy React re-renders but updates the store time
+  useEffect(() => {
+    let lastUpdate = performance.now();
+    let reqId;
+
+    const loop = (now) => {
+      if (isPlaying) {
+        const dt = now - lastUpdate;
+        const addTimeMs = dt * speed;
+        setTime(new Date(useCosmosStore.getState().time.getTime() + addTimeMs));
+      }
+      lastUpdate = now;
+      reqId = requestAnimationFrame(loop);
+    };
+
+    reqId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(reqId);
+  }, [isPlaying, speed, setTime]);
+
   return (
     <div className="bg-background font-body-base text-on-surface overflow-hidden w-full h-screen relative flex">
-      <NavigationAside />
-      <div className="pl-12 md:pl-16 flex flex-col w-full h-full relative">
+      <div className="flex flex-col w-full h-full relative">
         <Header />
         <main className="flex-1 relative w-full h-full bg-[#051424]">
           {/* Ensure Starfield canvas takes full area under UI */}
@@ -376,7 +308,6 @@ export default function Cosmos() {
           <LeftMonitor />
           <Sidebar />
         </main>
-        <Footer />
       </div>
     </div>
   );

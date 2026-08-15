@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, useState } from 'react';
+import React, { useRef, useMemo, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
@@ -25,6 +25,26 @@ function radecToCartesian(ra, dec, radius = 500) {
 function StarPoints() {
   const meshRef = useRef();
   const setFocusedStar = useCosmosStore(state => state.setFocusedStar);
+  const { raycaster } = useThree();
+
+  useEffect(() => {
+    raycaster.params.Points.threshold = 5.0;
+  }, [raycaster]);
+
+  const starTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)');
+    gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 32, 32);
+    return new THREE.CanvasTexture(canvas);
+  }, []);
 
   // Create geometry and materials for data-driven stars
   const { positions, colors, sizes } = useMemo(() => {
@@ -123,6 +143,8 @@ function StarPoints() {
         opacity={1.0}
         blending={THREE.AdditiveBlending}
         depthWrite={false}
+        map={starTexture}
+        alphaTest={0.01}
       />
     </points>
   );
@@ -173,6 +195,21 @@ function EquatorialGroup({ children }) {
 }
 
 function Nebula() {
+  const starTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)');
+    gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 32, 32);
+    return new THREE.CanvasTexture(canvas);
+  }, []);
+
   const { positions, colors, sizes } = useMemo(() => {
     const count = 3000;
     const positions = new Float32Array(count * 3);
@@ -226,6 +263,8 @@ function Nebula() {
         sizeAttenuation={true}
         blending={THREE.AdditiveBlending}
         depthWrite={false}
+        map={starTexture}
+        alphaTest={0.01}
       />
     </points>
   );
@@ -236,7 +275,7 @@ export default function Starfield() {
     <Canvas
       camera={{ position: [0, 0, 0.1], fov: 60 }}
       gl={{ antialias: true, alpha: false }}
-      style={{ width: '100%', height: '100%', pointerEvents: 'auto' }}
+      style={{ width: '100%', height: '100%', pointerEvents: 'auto', touchAction: 'none' }}
     >
       <color attach="background" args={['#000000']} />
 

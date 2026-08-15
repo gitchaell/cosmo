@@ -5,18 +5,11 @@
 (!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
   - ESM syntax in a file loaded as CommonJS (vite.config.js:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
 Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+Port 5173 is in use, trying another one...
+1:54:27 PM [vite] (client) Re-optimizing dependencies because lockfile has changed
 
-  VITE v8.2.1  ready in 373 ms
+  VITE v8.2.1  ready in 426 ms
 
-  ➜  Local:   http://localhost:5173/
+  ➜  Local:   http://localhost:5174/
   ➜  Network: use --host to expose
-1:01:46 AM [vite] (client) [optimizer] bundling dependencies...
-1:17:11 AM [vite] (client) hmr update /src/index.css, /src/components/Starfield.jsx
-1:18:14 AM [vite] (client) hmr update /src/index.css, /src/components/Starfield.jsx
-1:18:36 AM [vite] (client) hmr update /src/components/Cosmos.jsx, /src/index.css
-4:08:56 AM [vite] (client) hmr update /src/index.css
-4:09:21 AM [vite] (client) hmr update /src/components/Cosmos.jsx, /src/index.css
-4:09:53 AM [vite] (client) hmr update /src/index.css, /src/components/Starfield.jsx
-4:10:38 AM [vite] (client) [optimizer] bundling dependencies...
-4:10:40 AM [vite] (client) dependency optimized: @react-three/postprocessing
-4:10:40 AM [vite] (client) optimized dependencies changed. reloading
+1:54:28 PM [vite] (client) [optimizer] bundling dependencies...
