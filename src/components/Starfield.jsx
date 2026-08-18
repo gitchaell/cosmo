@@ -351,7 +351,7 @@ function SunAndMoon() {
       {/* Moon */}
       <mesh position={[-380, 20, 50]}>
         <sphereGeometry args={[5, 32, 32]} />
-        <meshStandardMaterial color="#aaaaaa" roughness={0.8} metalness={0.2} />
+        <meshStandardMaterial color="#888888" roughness={0.9} metalness={0.1} emissive="#111111" />
       </mesh>
     </group>
   );
@@ -577,7 +577,7 @@ export default function Starfield() {
         <Meteors />
 
         {/* Simple grid to visualize equatorial plane */}
-        <gridHelper args={[800, 36, 0x114455, 0x114455]} material-transparent material-opacity={0.15} rotation={[Math.PI/2, 0, 0]} />
+        <gridHelper args={[800, 36, 0x114455, 0x114455]} material-transparent material-opacity={0.0} rotation={[Math.PI/2, 0, 0]} visible={false} />
       </EquatorialGroup>
 
       {/* Postprocessing for glowing stars */}
