@@ -193,23 +193,34 @@ export default function StarPoints() {
 
             vec3 finalColor = vColor;
 
-            // Twinkling effect for smaller (distant) stars
-            if (vSize < 10.0) {
-              float twinkle = sin(uTime * 3.0 + gl_FragCoord.x * 0.1) * 0.5 + 0.5;
+            // Twinkling effect based on apparent size/magnitude
+            // Brighter/closer stars (larger size) twinkle less, faint stars twinkle rapidly
+            float twinkleSpeed = mix(6.0, 1.0, smoothstep(4.0, 20.0, vSize));
+            float twinkleIntensity = mix(0.9, 0.1, smoothstep(4.0, 20.0, vSize));
 
-              // Shift color slightly between red, blue, and white
-              float colorShift = sin(uTime * 1.5 + gl_FragCoord.y * 0.05);
-              vec3 shiftColor;
-              if (colorShift > 0.33) {
-                shiftColor = vec3(1.0, 0.5, 0.5); // Reddish
-              } else if (colorShift < -0.33) {
-                shiftColor = vec3(0.5, 0.8, 1.0); // Light blue
-              } else {
-                shiftColor = vec3(1.0, 1.0, 1.0); // White
-              }
+            // Generate a pseudo-random phase for this star
+            float phase = (gl_FragCoord.x * 12.9898 + gl_FragCoord.y * 78.233);
 
-              finalColor = mix(vColor, shiftColor, 0.4) * (0.5 + twinkle * 0.5);
+            // Combine multiple sine waves for a chaotic twinkle
+            float twinkle = sin(uTime * twinkleSpeed + phase) * 0.5 + 0.5;
+            twinkle *= sin(uTime * twinkleSpeed * 0.73 + phase * 1.3) * 0.5 + 0.5;
+
+            // Chromatic aberration / Atmospheric scattering on twinkling
+            // Colors shift violently for heavily twinkling stars
+            vec3 shiftColor = vColor;
+            float hueShift = sin(uTime * twinkleSpeed * 1.5 + phase * 2.0);
+            if (twinkleIntensity > 0.5) {
+                if (hueShift > 0.5) shiftColor = vec3(1.0, 0.3, 0.3);       // Red flash
+                else if (hueShift < -0.5) shiftColor = vec3(0.3, 0.5, 1.0); // Blue flash
+                else shiftColor = vec3(1.0, 1.0, 1.0);                      // Brilliant white flash
+
+                // Mix the chromatic shift based on how dim the twinkle currently is (atmospheric refraction happens when it dims)
+                finalColor = mix(vColor, shiftColor, (1.0 - twinkle) * 0.8);
             }
+
+            // Apply intensity modulation
+            float finalIntensity = 1.0 - (twinkle * twinkleIntensity);
+            finalColor *= finalIntensity;
 
             gl_FragColor = vec4(finalColor, 1.0) * texColor;
           }

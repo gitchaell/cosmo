@@ -94,8 +94,14 @@ export default function Starfield() {
       </EquatorialGroup>
 
       {/* Postprocessing for glowing stars and bodies */}
-      <EffectComposer disableNormalPass>
-        <Bloom luminanceThreshold={1} mipmapBlur luminanceSmoothing={0.5} intensity={1.5} />
+      <EffectComposer disableNormalPass multisampling={4}>
+        <Bloom
+          luminanceThreshold={0.2}
+          mipmapBlur
+          luminanceSmoothing={0.9}
+          intensity={2.5}
+          radius={0.8}
+        />
       </EffectComposer>
 
       {/* Allows the user to look around and navigate */}
