@@ -26,6 +26,13 @@ function StarPoints() {
   const meshRef = useRef();
   const setFocusedStar = useCosmosStore(state => state.setFocusedStar);
   const { raycaster } = useThree();
+  const materialRef = useRef();
+
+  useFrame((state) => {
+    if (materialRef.current) {
+      materialRef.current.uniforms.uTime.value = state.clock.elapsedTime;
+    }
+  });
 
   useEffect(() => {
     raycaster.params.Points.threshold = 5.0;
@@ -148,22 +155,210 @@ function StarPoints() {
           itemSize={1}
         />
       </bufferGeometry>
-      <pointsMaterial
-        vertexColors
-        size={5}
-        sizeAttenuation={false}
+      <shaderMaterial ref={materialRef}
         transparent
-        opacity={1.0}
-        blending={THREE.AdditiveBlending}
         depthWrite={false}
-        map={starTexture}
-        alphaTest={0.01}
+        blending={THREE.AdditiveBlending}
+        uniforms={{
+          uTime: { value: 0 },
+          uTexture: { value: starTexture }
+        }}
+        vertexShader={`
+          attribute float size;
+          varying vec3 vColor;
+          varying vec2 vUv;
+          varying float vSize;
+          void main() {
+            vColor = color;
+            vSize = size;
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = size * (300.0 / -mvPosition.z);
+            gl_Position = projectionMatrix * mvPosition;
+          }
+        `}
+        fragmentShader={`
+          uniform float uTime;
+          uniform sampler2D uTexture;
+          varying vec3 vColor;
+          varying float vSize;
+
+          void main() {
+            vec4 texColor = texture2D(uTexture, gl_PointCoord);
+            if (texColor.a < 0.01) discard;
+
+            vec3 finalColor = vColor;
+
+            // Twinkling effect for smaller (distant) stars
+            if (vSize < 10.0) {
+              float twinkle = sin(uTime * 3.0 + gl_FragCoord.x * 0.1) * 0.5 + 0.5;
+
+              // Shift color slightly between red, blue, and white
+              float colorShift = sin(uTime * 1.5 + gl_FragCoord.y * 0.05);
+              vec3 shiftColor;
+              if (colorShift > 0.33) {
+                shiftColor = vec3(1.0, 0.5, 0.5); // Reddish
+              } else if (colorShift < -0.33) {
+                shiftColor = vec3(0.5, 0.8, 1.0); // Light blue
+              } else {
+                shiftColor = vec3(1.0, 1.0, 1.0); // White
+              }
+
+              finalColor = mix(vColor, shiftColor, 0.4) * (0.5 + twinkle * 0.5);
+            }
+
+            gl_FragColor = vec4(finalColor, 1.0) * texColor;
+          }
+        `}
       />
     </points>
   );
 }
 
+
+
+function Meteors() {
+  const count = 20;
+  const geometryRef = useRef();
+  const materialRef = useRef();
+
+  const particles = useMemo(() => {
+    const data = [];
+    for (let i = 0; i < count; i++) {
+      data.push({
+        position: new THREE.Vector3(
+          (Math.random() - 0.5) * 800,
+          (Math.random() - 0.5) * 800,
+          (Math.random() - 0.5) * 800
+        ),
+        velocity: new THREE.Vector3(
+          (Math.random() - 0.5) * 10,
+          (Math.random() - 0.5) * 10,
+          (Math.random() - 0.5) * 10
+        ),
+        color: new THREE.Color().setHSL(Math.random(), 1.0, 0.7),
+        size: Math.random() > 0.9 ? 15.0 : 5.0, // 10% chance of being a large bolide
+        life: Math.random() * 100
+      });
+    }
+    return data;
+  }, []);
+
+  const { positions, colors, sizes } = useMemo(() => {
+    return {
+      positions: new Float32Array(count * 3),
+      colors: new Float32Array(count * 3),
+      sizes: new Float32Array(count)
+    };
+  }, []);
+
+  useFrame(() => {
+    if (!geometryRef.current) return;
+
+    for (let i = 0; i < count; i++) {
+      let p = particles[i];
+      p.life -= 1;
+
+      if (p.life <= 0) {
+        p.position.set(
+          (Math.random() - 0.5) * 800,
+          (Math.random() - 0.5) * 800,
+          (Math.random() - 0.5) * 800
+        );
+        p.life = 50 + Math.random() * 100;
+      } else {
+        p.position.add(p.velocity);
+      }
+
+      positions[i * 3] = p.position.x;
+      positions[i * 3 + 1] = p.position.y;
+      positions[i * 3 + 2] = p.position.z;
+
+      colors[i * 3] = p.color.r;
+      colors[i * 3 + 1] = p.color.g;
+      colors[i * 3 + 2] = p.color.b;
+
+      sizes[i] = p.size * (p.life / 150.0); // fade out
+    }
+
+    geometryRef.current.attributes.position.needsUpdate = true;
+    geometryRef.current.attributes.color.needsUpdate = true;
+    geometryRef.current.attributes.size.needsUpdate = true;
+  });
+
+  return (
+    <points>
+      <bufferGeometry ref={geometryRef}>
+        <bufferAttribute attach="attributes-position" count={count} array={positions} itemSize={3} />
+        <bufferAttribute attach="attributes-color" count={count} array={colors} itemSize={3} />
+        <bufferAttribute attach="attributes-size" count={count} array={sizes} itemSize={1} />
+      </bufferGeometry>
+      <shaderMaterial
+        ref={materialRef}
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        vertexShader={`
+          attribute float size;
+          varying vec3 vColor;
+          void main() {
+            vColor = color;
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = size * (300.0 / -mvPosition.z);
+            gl_Position = projectionMatrix * mvPosition;
+          }
+        `}
+        fragmentShader={`
+          varying vec3 vColor;
+          void main() {
+            // Create a soft glowing circle instead of a square
+            vec2 uv = gl_PointCoord.xy - vec2(0.5);
+            float dist = length(uv);
+            if (dist > 0.5) discard;
+
+            // Soft gradient
+            float alpha = smoothstep(0.5, 0.1, dist) * 0.8;
+            gl_FragColor = vec4(vColor, alpha);
+          }
+        `}
+      />
+    </points>
+  );
+}
+
+function SunAndMoon() {
+
+  const groupRef = useRef();
+
+  useFrame(() => {
+    if (!groupRef.current) return;
+    const state = useCosmosStore.getState();
+    const time = state.time;
+    // Simple rotation to simulate movement along the ecliptic
+    const d = time.getTime() / 86400000.0 - 10957.5; // Days since J2000
+    // Very simplified sun/moon position
+    groupRef.current.rotation.y = d * 0.01;
+  });
+
+  return (
+    <group ref={groupRef}>
+      {/* Sun */}
+      <mesh position={[400, 0, 0]}>
+        <sphereGeometry args={[15, 32, 32]} />
+        <meshBasicMaterial color="#ffffee" />
+        <pointLight color="#ffffff" intensity={2} distance={1000} decay={2} />
+      </mesh>
+
+      {/* Moon */}
+      <mesh position={[-380, 20, 50]}>
+        <sphereGeometry args={[5, 32, 32]} />
+        <meshStandardMaterial color="#aaaaaa" roughness={0.8} metalness={0.2} />
+      </mesh>
+    </group>
+  );
+}
+
 // Group representing the equatorial coordinate system.
+
 // We rotate this based on time (LST) and location (Latitude).
 function EquatorialGroup({ children }) {
   const groupRef = useRef();
@@ -235,10 +430,16 @@ function Nebula() {
       const u = Math.random();
       const v = Math.random();
       const theta = 2 * Math.PI * u;
-      // Concentrate near the equator (dec ~ 0)
+
+      // Concentrate near the equator (dec ~ 0) but add layered clumping
       const phi = Math.acos(2 * v - 1);
-      const bandOffset = (Math.random() - 0.5) * 0.5; // Narrow band
-      const dec = Math.asin(Math.sin(phi) * bandOffset);
+
+      // Multiple overlapping bands and clumps
+      const bandOffset = (Math.random() - 0.5) * 0.5;
+      const clump = Math.sin(theta * 5.0) * 0.2; // Add clumps along the band
+      const layerOffset = Math.random() > 0.8 ? (Math.random() - 0.5) * 0.8 : 0; // Occasional wider spread
+
+      const dec = Math.asin(Math.sin(phi) * (bandOffset + clump + layerOffset));
 
       const r = 450 + Math.random() * 50;
 
@@ -246,17 +447,19 @@ function Nebula() {
       positions[i * 3 + 1] = r * Math.sin(dec);
       positions[i * 3 + 2] = r * Math.cos(dec) * Math.cos(theta);
 
-      // Deep purples, blues, and faint reds
+      // Deep purples, blues, and faint reds + new dusty and bright regions
       const colorChoice = Math.random();
-      if (colorChoice > 0.8) colorObj.setRGB(0.1, 0.2, 0.5); // Blue
+      if (colorChoice > 0.9) colorObj.setRGB(0.8, 0.4, 0.2); // Dusty orange/brown
+      else if (colorChoice > 0.8) colorObj.setRGB(0.1, 0.5, 0.8); // Bright blue (star forming)
       else if (colorChoice > 0.5) colorObj.setRGB(0.3, 0.1, 0.4); // Purple
-      else colorObj.setRGB(0.2, 0.1, 0.2); // Dark Purple
+      else colorObj.setRGB(0.15, 0.05, 0.2); // Dark Purple
 
       colors[i * 3] = colorObj.r;
       colors[i * 3 + 1] = colorObj.g;
       colors[i * 3 + 2] = colorObj.b;
 
-      sizes[i] = Math.random() * 80 + 40;
+      // Varying sizes for softer overlaps
+      sizes[i] = Math.random() > 0.9 ? Math.random() * 150 + 80 : Math.random() * 80 + 40;
     }
     return { positions, colors, sizes };
   }, []);
@@ -370,6 +573,8 @@ export default function Starfield() {
       <EquatorialGroup>
         <StarPoints />
         <Nebula />
+        <SunAndMoon />
+        <Meteors />
 
         {/* Simple grid to visualize equatorial plane */}
         <gridHelper args={[800, 36, 0x114455, 0x114455]} material-transparent material-opacity={0.15} rotation={[Math.PI/2, 0, 0]} />
@@ -388,6 +593,7 @@ export default function Starfield() {
         dampingFactor={0.05}
         minDistance={0.1}
         maxDistance={800}
+        rotateSpeed={-0.5}
       />
     </Canvas>
   );
