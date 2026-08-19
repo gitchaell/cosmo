@@ -105,7 +105,7 @@ export default function Starfield() {
       </EffectComposer>
 
       {/* Allows the user to look around and navigate */}
-      <OrbitControls
+      <OrbitControls makeDefault
         enableZoom={false}
         enablePan={false}
         enableDamping={true}
