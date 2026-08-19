@@ -31,7 +31,7 @@ const Header = () => {
   };
 
   return (
-    <header className="flex flex-col md:flex-row items-start md:h-20 justify-between px-4 md:px-margin pt-4 md:pt-margin pointer-events-none z-40 absolute top-0 left-0 right-0 w-full gap-4 md:gap-0">
+    <header className="flex flex-col md:flex-row flex-wrap items-start md:h-20 justify-between px-4 md:px-margin pt-4 md:pt-margin pointer-events-none z-40 absolute top-0 left-0 right-0 w-full gap-4 md:gap-0">
       <div className="flex flex-col border-l border-primary/60 pl-3 pointer-events-auto bg-surface-container-lowest/20 backdrop-blur-sm p-2 text-xs md:text-sm">
         <div className="font-label-caps text-label-caps text-primary tracking-widest uppercase">Observation Point</div>
         <div className="font-data-mono text-data-mono text-on-surface flex flex-wrap gap-2 md:gap-4 mt-1">
@@ -123,7 +123,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className={`absolute right-4 md:right-margin top-24 bottom-40 md:bottom-32 w-72 md:w-80 flex flex-col justify-start z-30 pointer-events-none group transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? '' : 'translate-x-[300px]'}`} id="intel-panel">
+    <div className={`absolute right-4 left-4 md:left-auto md:right-margin top-24 bottom-40 md:bottom-32 w-[calc(100%-2rem)] max-w-sm md:w-80 flex flex-col justify-start z-30 pointer-events-none group transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? '' : 'translate-x-[110%]'}`} id="intel-panel">
       <div
         className="absolute -left-8 top-8 bg-surface-container-low/90 backdrop-blur-md border border-primary/30 border-r-0 py-4 px-1 rounded-l-md pointer-events-auto cursor-pointer hover:bg-primary/10 transition-colors flex items-center justify-center"
         onClick={() => setIsOpen(!isOpen)}
