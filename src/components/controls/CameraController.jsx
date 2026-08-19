@@ -3,24 +3,29 @@ import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 
 export default function CameraController() {
-  const { camera, gl } = useThree();
-  const [targetFov, setTargetFov] = useState(camera.fov);
+  const { camera, gl, controls } = useThree();
+
+  const targetPosition = useRef(new THREE.Vector3().copy(camera.position));
 
   const touchState = useRef({
     touchStartDist: 0,
-    initialFov: camera.fov,
-    currentTargetFov: camera.fov
+    initialTargetPos: new THREE.Vector3()
   });
-
-  useEffect(() => {
-    touchState.current.currentTargetFov = targetFov;
-  }, [targetFov]);
 
   useEffect(() => {
     const handleWheel = (e) => {
       e.preventDefault();
-      const zoomSpeed = 0.05;
-      setTargetFov((prev) => THREE.MathUtils.clamp(prev + e.deltaY * zoomSpeed, 5, 120));
+
+      const zoomSpeed = 0.5;
+      const zoomAmount = e.deltaY * zoomSpeed;
+
+      const direction = new THREE.Vector3();
+      camera.getWorldDirection(direction);
+
+      // We move opposite to the direction if deltaY is positive (zoom out),
+      // and along the direction if deltaY is negative (zoom in).
+      const movement = direction.clone().multiplyScalar(-zoomAmount);
+      targetPosition.current.add(movement);
     };
 
     const handleTouchStart = (e) => {
@@ -29,7 +34,7 @@ export default function CameraController() {
         const dx = e.touches[0].clientX - e.touches[1].clientX;
         const dy = e.touches[0].clientY - e.touches[1].clientY;
         touchState.current.touchStartDist = Math.hypot(dx, dy);
-        touchState.current.initialFov = touchState.current.currentTargetFov;
+        touchState.current.initialTargetPos.copy(targetPosition.current);
       }
     };
 
@@ -40,8 +45,20 @@ export default function CameraController() {
         const dy = e.touches[0].clientY - e.touches[1].clientY;
         const dist = Math.hypot(dx, dy);
 
+        // If dist > touchStartDist, we are pinching out (zooming in) -> negative zoomAmount
+        // If dist < touchStartDist, we are pinching in (zooming out) -> positive zoomAmount
         const zoomFactor = touchState.current.touchStartDist / dist;
-        setTargetFov(THREE.MathUtils.clamp(touchState.current.initialFov * zoomFactor, 5, 120));
+        // Simple zoom amount based on factor. When factor > 1 (zoom out), amount is positive.
+        // When factor < 1 (zoom in), amount is negative.
+        // We'll scale this for reasonable speed.
+        const zoomAmount = (zoomFactor - 1.0) * 100.0;
+
+        const direction = new THREE.Vector3();
+        camera.getWorldDirection(direction);
+
+        const movement = direction.clone().multiplyScalar(-zoomAmount);
+
+        targetPosition.current.copy(touchState.current.initialTargetPos).add(movement);
       }
     };
 
@@ -55,12 +72,24 @@ export default function CameraController() {
       canvas.removeEventListener('touchstart', handleTouchStart);
       canvas.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [gl.domElement]);
+  }, [camera, gl.domElement]);
 
   useFrame(() => {
-    if (Math.abs(camera.fov - targetFov) > 0.1) {
-      camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, 0.1);
-      camera.updateProjectionMatrix();
+    // Interpolate camera position towards target position
+    camera.position.lerp(targetPosition.current, 0.1);
+
+    // If OrbitControls is used, its target needs to be translated as well
+    // so that panning/looking around continues from the new position
+    if (controls) {
+      // The distance vector from camera to the controls target
+      const offset = controls.target.clone().sub(camera.position);
+      // We need to keep this offset length, or adjust the target to move along with the camera
+      // The easiest way is to let the camera move and we update controls.target to be in front of the camera
+      const direction = new THREE.Vector3();
+      camera.getWorldDirection(direction);
+      const distance = camera.position.distanceTo(controls.target);
+      controls.target.copy(camera.position).add(direction.multiplyScalar(Math.max(distance, 1)));
+      controls.update();
     }
   });
 
